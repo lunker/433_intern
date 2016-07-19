@@ -1,0 +1,47 @@
+
+
+
+TCP Timer
+
+TCP에는 4가지의 타이머가 있다.
+
+1. Retransmission Timeout 
+2. Persistence Timer
+3. Ouiet Timer 
+4. keep-alive timer and Idle timer 
+
+
+------------------------------------------
+
+
+
+1) Retransmission Timeout 
+ - tcp 패킷 전송 후 , ack가 도달해야 할 시간 
+ - 이 시간내에 오지 않으면, 재전송을 한다. 
+ 
+ 
+2) Persistence Timeout
+ - Window 크기 결정을 위한 timer.
+ - 주기적으로 송신하는 Window Probe 패킷의 송신주기를 처리하는 타이머.
+ - TCP상의 데이터 교환시, 수신 윈도우의 크기가 0이 된 상태 + 그 상태에서 윈도우 재개 시키려는(수신 윈도우 사이즈가 0이 아니란 것을 알리는 segment)
+ 세그먼트가 유실되는 상황이 동시에 일어날 수 있다.
+ - 이렇게 되면 양 tcp는 무한대기 상태에 빠지게 된다. 
+ - 이를 방지하기 위한 timer.
+  * 상대방tcp에서 수신 윈도우 사이즈가 0 임을 알린다. 
+  * persistence timer가 작동된다. 이때 timer의 초기값은 RTO.
+  * persistence timer가 종료될 경우, probe segment를 전송한다. 이 segment는 ack의 재전송만을 요구한다. 이때도 persistence timer를 작동시키고, 그 크기는 RTO
+  * 또 ack를 받지 못하면, probe segment를 재전송한다. 이때의 timer는 2RTO
+  * ack를 받을 때까지 3RTO, 4RTO. . . 계속 늘린다. 
+  * 만약 TIMER의 값이 60초를 넘기면 60초로 고정시킨다.
+  
+  
+3) 
+
+4) keep-alive timer 
+ - 서버tcp에서 관리하는 timer
+ - Client TCP가 다운되어 두 TCP간에 연결이 설정되어 있는 상태로 IDLE상태에 있게되면 자원 낭비이기에 이를 방지하기 위함.
+ - default 2시간.
+ - 2시간동안 아무런 패킷이 오지 않으면, probe packet을 75초 간격으로 10번 송신. 
+ - 그래도 응답이 없으면 연결 종료.
+
+

@@ -1,0 +1,48 @@
+### 내 문제 : 
+
+client가 유저 입력을 받고 있는 사이, server죽는것을 모른다. 
+입력 후 전송하려 할때 죽은것을 알게된다. 
+
+
+
+
+# async socket 작동방식 
+- async connect, send, receive를 시작 하고서는 해당 thread를 대기시켜 놓는다. 
+
+
+
+heart_beat timer -> 5초 
+
+
+
+- 비동기적으로 메인 send-receive logic앞에다가 5초에 한번씩 async send & receive를 넣어둔다.
+- 그리고 thread를 대기 시키지 않는다. 
+- 어서 메인 로직 수행 
+
+
+=> 하지만 이것도 1개의 heart_beat을 보내고 나면, console input에 걸려있다. 
+
+/*
+	main routine
+*/
+
+
+
+* ManualResetEvent 
+- event가 발생할 때까지 현재  스레드를 중지시킬 수 있다. 
+- 
+
+
+
+==============================================
+
+
+main thread : console io처리 
+socket thread : socket sned, receive 처리 
+ -> 5초에 한번씩 heart beat 전송 
+ 
+
+========c#으로 게임서버 만들기 !
+ㄴ
+https://www.google.co.kr/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&ved=0ahUKEwi9he7b3vnNAhULm5QKHTCcAIwQFggiMAE&url=http%3A%2F%2Flab.gamecodi.com%2Fboard%2Fzboard.php%3Fid%3DGAMECODILAB_Lecture_series%26no%3D61&usg=AFQjCNEbRGw7JYuadLn_GhMSW0MC2erxmQ&sig2=pDryI5aONaQf4TrvRV54dQ&bvm=bv.127178174,d.dGo&cad=rja
+

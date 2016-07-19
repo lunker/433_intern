@@ -1,0 +1,38 @@
+Essential C# Chapter 2 Data Types
+
+
+
+[Fundamental Numeric Types]
+
+- Integer Types, Floating-point types, decimal(special floating-point)
+
+- 모든 fundamental type에는 2개의 이름을 가지고 있다. 
+ 1) short name
+ 2) full name = BCL에서의 이름 
+
+1) Integer Types
+ - 8개가 존재. 
+ 
+ 
+ 
+ 
+2) Floating-point types
+
+ - float, double을 가진다. 
+ - float : 32bit 
+ - dobule : 64bit
+ 
+ 
+3) Decimal Type 
+ - 128bit 
+ - 정확한 소수값을 가진다. 
+ - floating의 경우 0.1을 할당하면 0.9999999, 0.10000000001 과같은 값을 가질 수 있는데, 
+ decimal은 정확한 값을 가진다. 
+ - floating보다 더 높은 정확도를 가진다. 
+ - 
+ 
+ 
+
+
+ 
+- literal 상수를 사용시, 소수는 double, 숫자는 int형 값으로 읽어진다. 
