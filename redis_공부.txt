@@ -1,0 +1,176 @@
+Redis
+
+
+
+[redis tutorial]
+
+
+- key-value store
+[Command]
+
+<SET>
+- 'SET' command로 key, value를 저장할 수 있다. 
+ex) SET keyname "value"
+
+<GET>
+
+
+<DEL>
+- 주어진 key에 대한 value를 지운다.
+- 성공하면 return 1
+- 실패하면 return 0
+
+
+<INCR>
+- 해당 키의 value를 하나 증가시킨다. 
+- atoic operation이기에, 원자성 보존!!!!
+
+<decr>
+- 키에 저장된 값이 숫자일때, 1 감소시킨다. 
+- 
+<EXPIRE, TTL>
+- key가 특정 시간동안만 존재하도록 할 수 있다. 
+- key를 정의한 후 ,
+ex) expire key 살아있을시간(초)
+를 하면 해당 시간동안만 살아있게 된다.
+ex) ttl key 
+-> 해당 key의 남은 수명을 알려준다. 
+- return -2 : 해당 key는 더이상 존재하지 않는다.
+- return -1 : 절대 사라지지 않는 key이다. 
+
+
+[data structure]
+1) list
+- series of ordered values(순서있음!)
+- 가능한 command : rpush, lpush, llen, lrange, lpop, rpop 
+- list의 element들은 type이 같아야 한다. 
+
+
+
+<rpush>
+- list의 마지막에 데이터를 넣는다. 
+
+
+<lpush>
+- list의 시작부분에 데이터를 넣는다. 
+
+<lrange>
+- list에 지정한 범위의 데이터를 반환한다. 
+- 여기에서 -1은 끝까지를 의미한다. 
+ex) lrange listname 시작위치 끝위치 
+
+<llen>
+- return current length of the list 
+
+<lpop>
+- remove the first element from the list and returns it 
+
+<rpop>
+- remote the last element from the list and returns it 
+
+
+2) set
+- list와 유사하지만, 데이터간의 순서가 없다.
+- command : sadd, srem, sismember, smembers, sunion
+
+<sadd>
+- 해당 value를 set에 넣는다.
+ex) sadd interns "lee"
+
+<srem>
+- 해당 value를 set에서 제거한다. 
+
+<sismember>
+- 해당 value가 set에 있는지 확인한다.
+- return 1 : 존재 
+- return 0 : 없음 
+
+<smembers>
+- set에 있는 모든 member들을 반환한다.
+
+<sunion>
+- 여러개의 set들을 합친다. 
+
+
+
+3) sorted sets
+- value에 'associated score'가 있다.
+- 이 score를 기준으로 정렬이된다. 
+
+
+4) hashes
+- string field와 string value를 매핑한다. 
+- object를 표현하기에 제일 좋다 
+- numeric value는 string처럼 취급된다.
+- numeric value의 증가는 <hincrby> command를 사용한다.
+ex
+
+
+
+[주기적인 통계 정보 조회]
+- 메모리 상태, 저장된 키의 개수와 같은 서버의 통계 정보를 주기적으로 확인해야 한다면, 별도의 프로그램을 개발하기 보다는 
+간단한 리눅스 셸명령과 크론탭을 사용하는 편이 낫다. 
+- redis-cli info cpu : 메모리 상태 
+- redis-cli info keyspace : 저장된 키의 개수 
+- redis-cli info stats : 서버의 통계정보 
+
+
+
+
+
+Chapter3. NoSQL
+
+
+3.1 정의 
+- 대용량 웹 서비스를 위하여 만들어진 데이터 저장소
+- 관계형 데이터 모델을 지양하며 대량의 분산된 데이터를 저장하고 조회하는데 특화된 저장소 
+- 스키마 없이 사용 가능하거나, 느슨한 스키마를 제공하는 저장소 
+
+'빅데이터를 처리하기 위한 분산 데이터 저장소의 통칭'
+
+
+
+3.3 CAP 정리
+
+- CAP 정리란, 분산 컴퓨터 시스템을 설명하는데 사용되는 이론이다.
+- Consistency, availability, partition tolerance를 모두 동시에 지원하는 시스템은 없다.
+- 웹서버와 db서버가 다른 하드웨어에 설치되는것이 분산 컴퓨팅이라고 한다.
+- 이럴때, nosql은 일관성, 가용성, 분할 허용성 중 두 가지를 지원하고, 나머지 한 속성은 특정 조건에서만 만족한다. 가 cap정리의 핵심!
+
+- 노드들의 집합 = 클러스터 
+- 분산시스템은 하나 이상의 다중 클러스터로 구성될 수 있다. 
+
+
+
+3.3.1 Consistency
+- 동시성, 또는 동일성
+- '다중 클라이언트에서 같은 시간에 조회하는 데이터는 항상 동일한 데이터 임을 보증'
+- nosql에서는 빠른 분산 처리를 위하여 일관성을 희생하기도 한다. 그래서 시간이 지남에 따라 수정된 내용이 다른 노드로 전파되어 반영된다. 
+
+- 각 nosql은 분산 노드 간의 데이터 동기화를 위해서 2가지 방법을 사용한다.
+1) 동기식 방법 
+ - 데이터의 저장 결과를 클라이언트에게 응답하기 전에, 모든 노드에 데이터를 저장.
+ - 느린 응답시간을 보이지만, 강한 데이터의 정합성을 보장 
+ 
+2) 비동기식 방법 
+ - 임시파일이나, 메모리에 기록 후 클라이언트에게 먼저 응답
+ - 특정 이벤트, 프로세스를 사용하여 노드로 데이터를 동기화 시킨다.
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
