@@ -1,0 +1,18 @@
+
+
+[jenkins github msbuild]
+- jekins 설정에서 
+ - tool 관리 - git의 홈 설정 
+ - 
+ 
+- 컴 시스템 설정에서 환경변수에 git path 추가 
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe
+
+
+- ms build 
+
+
+
+- ftp 설치 
+http://blog.iotinfra.net/?p=734
+http://bj001kim.blogspot.kr/2015/05/centos-7-ftp.html

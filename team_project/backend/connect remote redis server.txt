@@ -1,0 +1,41 @@
+
+
+
+
+# remote redis server connect
+
+ 1) open port 6379 on firewall
+  firewall-cmd --zone=public --add-port=6379/tcp
+  firewall-cmd --reload
+  firewall-cmd --permanent --list-all
+  
+ 2) /etc/redis.conf에서 bind 'redis가 깔린 host ip' 추가
+ 3) centos7 telnet install 
+ 
+ 
+ ---
+ 
+ 
+ 3)  telnet 서버 설치
+
+#yum install telnet-server
+
+==============================================================================
+
+telnet 서비스 시작 및 등록
+
+#systemctl   start   telnet.socket
+
+#systemctl   enable   telnet.socket
+
+telnet 으로 root 사용자가 로그인 하려면..
+
+#vi /etc/securetty   파일에서 아래 라인 추가
+
+pts/1
+
+pts/2
+
+pts/3
+
+ 
