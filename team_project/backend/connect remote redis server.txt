@@ -1,9 +1,12 @@
-
+﻿
 
 
 
 # remote redis server connect
 
+
+ 0) firewall-cmd 설치 
+  
  1) open port 6379 on firewall
   firewall-cmd --zone=public --add-port=6379/tcp
   firewall-cmd --reload

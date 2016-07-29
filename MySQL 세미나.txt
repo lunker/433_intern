@@ -1,0 +1,19 @@
+[MySQL 세미나 ]
+cafe.naver.com/mysqlpg
+
+
+
+
+[구조]
+/usr1/mysql/DBSpace_XXX/(Admin,data, iblog, temp)...
+
+
+
+
+
+- 한대의 서버에 많은 것을 운영할 수 있다. 
+- DBSpace에는 host이름이 들어간다.
+- unix, linux에는 soft link : 바로가기 기능? 
+- 
+
+
