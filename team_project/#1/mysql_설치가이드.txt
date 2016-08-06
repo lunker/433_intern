@@ -1,0 +1,407 @@
+최신 버젼으로 업데이트 한 내용 올려봅니다.  (교육을 해야해서 카페에 그냥 올림 ㅎㅎ)
+
+전체 내용은 아래 5.7.9 GA 설치와 동일합니다.
+
+
+-- =================================================================================
+-- 패키지 설치
+-- =================================================================================
+sudo su -
+yum install -y gcc automake autoconf libtool make cpan libstdc* libaio*
+yum install -y perl perl-devel perl-ExtUtils-CBuilder perl-ExtUtils-MakeMaker perl-Params-Validate
+yum install -y gzip unzip sysstat* iotop
+
+-- =================================================================================
+-- OS 환경 설정
+-- =================================================================================
+sudo su -
+cat /etc/security/limits.d/90-nproc.conf
+echo ""
+echo "*          -       nofile    65536"     >> /etc/security/limits.d/90-nproc.conf
+echo "*          -       nproc     unlimited" >> /etc/security/limits.d/90-nproc.conf
+cat /etc/security/limits.d/90-nproc.conf
+
+-- 동적 라이브러리 로딩
+cat /etc/ld.so.conf
+echo /usr1/mysql/5713/lib                 >> /etc/ld.so.conf && ldconfig
+echo /usr/lib64                           >> /etc/ld.so.conf && ldconfig
+echo PATH=$PATH:/usr1/mysql/5713/bin      >> /etc/profile && source /etc/profile
+cat /etc/ld.so.conf
+
+-- =================================================================================
+-- Installing MySQL 5.7.13 Step.1
+-- =================================================================================
+sudo su -
+mkdir -p /usr1/program
+rm -rf /usr1/mysql/DBSpace_testdb-m1
+mkdir -p /usr1/mysql/DBSpace_testdb-m1/ADMIN
+mkdir -p /usr1/mysql/DBSpace_testdb-m1/DATA
+mkdir -p /usr1/mysql/DBSpace_testdb-m1/BINLOG
+mkdir -p /usr1/mysql/DBSpace_testdb-m1/RELAYLOG
+mkdir -p /usr1/mysql/DBSpace_testdb-m1/IBLOG
+mkdir -p /usr1/mysql/DBSpace_testdb-m1/BACKUP
+ls -l /usr1/mysql/DBSpace_testdb-m1
+
+tail -1 /etc/group
+tail -1 /etc/passwd
+
+groupadd dba
+useradd mysql -g dba -d /home/mysql
+echo 'mysql:qazqaz!!!' | chpasswd
+su - mysql
+exit
+
+cd /usr1/program
+ls -l
+-- 프로그램 다운로드 & 업로드
+#   -rw-r--r--. 1 root root   1042165 May 27  2014 common_schema-2.2.sql
+#   -rw-r--r--. 1 root root     88964 Sep  4 15:10 htop-1.0.3-1.el7.rf.x86_64.rpm
+#   -rw-r--r--. 1 root root 423605472 Dec  2 22:56 mysql-5.7.13-linux-glibc2.5-x86_64.tar.gz
+#   drwxr-xr-x. 5 root root      4096 Feb 23 15:56 mysql-sys-master
+#   -rw-r--r--. 1 root root     52794 Sep 23 22:31 zzdba_objects_v1.2_20140901.sql
+#   wget http://download.softagency.net/MySQL/Downloads/MySQL-5.7/mysql-5.7.13-linux-glibc2.5-x86_64.tar.gz
+
+tar zxvf mysql-5.7.13-linux-glibc2.5-x86_64.tar.gz
+mv mysql-5.7.13-linux-glibc2.5-x86_64   /usr1/mysql/5713
+ls -l
+
+cd /usr1/mysql/
+ls -l
+
+cat /etc/ld.so.conf
+. /etc/profile
+
+
+ls -l /etc/my.cnf
+mv /etc/my.cnf /etc/my.cnf.old
+ln -s /usr1/mysql/DBSpace_testdb-m1/ADMIN/my.cnf /etc/my.cnf
+ls -l /etc/my.cnf
+
+echo "set global max_connections = 1000;" >> /usr1/mysql/DBSpace_testdb-m1/ADMIN/init.sql
+cat /usr1/mysql/DBSpace_testdb-m1/ADMIN/init.sql
+
+cat <<EOF > /usr1/mysql/DBSpace_testdb-m1/ADMIN/my.cnf
+################################################################
+## my.cnf                                                      #
+################################################################
+[client]
+port                                           = 3306
+socket                                         = /tmp/mysql.sock
+[mysqld]
+server-id                                      = 3051
+user                                           = mysql
+port                                           = 3306
+socket                                         = /tmp/mysql.sock
+pid-file                                       = /usr1/mysql/DBSpace_testdb-m1/mysqld.pid
+basedir                                        = /usr1/mysql/5713
+datadir                                        = /usr1/mysql/DBSpace_testdb-m1/DATA
+tmpdir                                         = /tmp
+init_connect                                   = 'SET NAMES utf8;'
+init-file                                      = /usr1/mysql/DBSpace_testdb-m1/ADMIN/init.sql
+character-set-server                           = utf8
+collation-server                               = utf8_general_ci
+skip-character-set-client-handshake
+skip-host-cache
+skip-name-resolve
+skip-external-locking
+skip-slave-start
+sysdate-is-now
+event_scheduler                                = ON
+general-log                                    = OFF
+general-log-file                               = /usr1/mysql/DBSpace_testdb-m1/ADMIN/general.log
+sql_mode                                       = NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+log_output                                     = FILE
+slow-query-log                                 = ON
+slow-query-log-file                            = /usr1/mysql/DBSpace_testdb-m1/ADMIN/slowquery.log
+long_query_time                                = 0.2
+log-queries-not-using-indexes                  = OFF
+log-bin                                        = /usr1/mysql/DBSpace_testdb-m1/BINLOG/mysql_bin
+expire_logs_days                               = 3
+log-warnings                                   = 2
+log-error                                      = /usr1/mysql/DBSpace_testdb-m1/ADMIN/error.log
+sync_binlog                                    = 0
+back_log                                       = 1024
+max_connections                                = 500
+max_connect_errors                             = 9999999999
+table_open_cache                               = 15000
+max_allowed_packet                             = 4M
+max_heap_table_size                            = 128M
+tmp_table_size                                 = 128M
+read_rnd_buffer_size                           = 2M
+read_buffer_size                               = 512K
+sort_buffer_size                               = 512K
+join_buffer_size                               = 512K
+thread_cache_size                              = 2048
+query_cache_type                               = DEMAND
+query_cache_size                               = 64M
+query_cache_limit                              = 512K
+thread_stack                                   = 512K
+ft_min_word_len                                = 4
+wait_timeout                                   = 300
+interactive_timeout                            = 28800
+connect_timeout                                = 300
+net_read_timeout                               = 172800
+net_write_timeout                              = 172800
+
+default-storage-engine                         = INNODB
+lower_case_table_names                         = 1
+binlog_cache_size                              = 2M
+binlog_format                                  = MIXED
+binlog_row_image                               = MINIMAL
+transaction_isolation                          = READ-COMMITTED
+max_binlog_size                                = 128M
+log_bin_trust_function_creators                = 1
+open-files-limit                               = 65535
+# explicit_defaults_for_timestamp                = TRUE  # TIMESTAMP with implicit DEFAULT value is deprecated
+
+########################################
+# INNODB Specific options
+########################################
+innodb_data_home_dir                           = /usr1/mysql/DBSpace_testdb-m1/DATA
+innodb_log_group_home_dir                      = /usr1/mysql/DBSpace_testdb-m1/IBLOG
+innodb_buffer_pool_size                        = 1GB
+#innodb_buffer_pool_instance                   = 8
+innodb-buffer-pool-instances                   = 8
+innodb_data_file_path                          = ibdata1:500M:autoextend
+innodb_file_per_table                          = 1
+innodb_write_io_threads                        = 8
+innodb_read_io_threads                         = 8
+innodb_force_recovery                          = 0
+innodb_thread_concurrency                      = 16
+innodb_flush_log_at_trx_commit                 = 2
+innodb_log_buffer_size                         = 8M
+innodb_log_file_size                           = 200M
+innodb_log_files_in_group                      = 10
+innodb_max_dirty_pages_pct                     = 30
+innodb_flush_method                            = O_DIRECT
+innodb_lock_wait_timeout                       = 15
+innodb_doublewrite                             = ON
+#innodb_file_format                            = Barracuda   # InnoDB: Using innodb_file_format is deprecated 5.7.7
+#innodb_file_format_max                        = Barracuda   # InnoDB: Using innodb_file_format is deprecated 5.7.7
+innodb_status_file                             = 1
+innodb_adaptive_flushing                       = 1
+innodb_use_native_aio                          = 1
+#innodb_purge_thread                           = 1
+innodb-purge-threads                           = 1
+innodb_fast_shutdown                           = 0
+innodb_stats_auto_recalc                       = OFF
+innodb_stats_persistent                        = OFF
+innodb_sort_buffer_size                        = 2M
+innodb_print_all_deadlocks                     = ON
+skip-innodb_adaptive_hash_index
+performance_schema                             = ON
+federated
+innodb_io_capacity                             = 2000
+innodb_io_capacity_max                         = 10000
+########################################
+# Replication related settings
+########################################
+replicate-ignore-db                            = perf_mon
+replicate-ignore-db                            = sys
+replicate-ignore-db                            = moniter
+replicate-ignore-db                            = mysql
+#replicate-do-db                               = xxxdb
+#
+#relay_log_purge                               = OFF
+#relay-log                                     = /usr1/mysql/DBSpace_testdb-m1/RELAYLOG/mysql_relay
+#log_slave_update
+#########################################
+
+########################################
+# MyISAM Specific options
+########################################
+key_buffer_size                                = 64M
+bulk_insert_buffer_size                        = 16M
+myisam_sort_buffer_size                        = 16M
+myisam_max_sort_file_size                      = 16M
+myisam_repair_threads                          = 1
+#myisam_recover
+myisam-recover-options
+
+[mysqldump]
+quick
+max_allowed_packet                             = 64M
+
+[mysql]
+no-auto-rehash
+prompt                                         = '[\h] (\d) \R:\m> '
+
+[myisamchk]
+key_buffer_size                                = 64M
+sort_buffer_size                               = 16M
+read_buffer                                    = 16M
+write_buffer                                   = 16M
+
+[mysqlhotcopy]
+interactive-timeout
+
+[mysqld_safe]
+open-files-limit                               = 65535
+EOF
+/usr1/mysql/DBSpace_testdb-m1/ADMIN/my.cnf
+ 
+
+chown -R mysql:dba /usr1
+ls -l /usr1/mysql
+
+
+-- =================================================================================
+-- Installing MySQL 5.7.13 Step.2
+-- =================================================================================
+sudo su -
+cd /usr1/mysql/5713
+ls -l /usr1/mysql/DBSpace_testdb-m1/*
+./bin/mysqld --initialize  --user=mysql
+
+ls -l /usr1/mysql/DBSpace_testdb-m1/*
+vi /usr1/mysql/DBSpace_testdb-m1/ADMIN/error.log
+
+
+./bin/mysql_ssl_rsa_setup
+
+
+-- =================================================================================
+-- Installing MySQL 5.7.13 (3)
+-- =================================================================================
+sudo su -
+ls -l /etc/init.d/mysqld
+ln -sv /usr1/mysql/5713/support-files/mysql.server  /etc/init.d/mysqld
+ls -l /etc/init.d/mysqld
+
+
+### MySQL 기동 ###
+ps -ef | grep mysqld
+su - mysql -c "service mysqld   start"
+su - mysql -c "service mysqld restart"
+
+
+ps -ef | grep mysqld
+
+
+
+### MySQL root 유저 암호 설정 ###
+-- 암호 찾기
+su - mysql
+grep 'temporary password' /usr1/mysql/DBSpace_testdb-m1/ADMIN/error.log
+   >> 2015-10-23T05:34:48.468364Z 1 [Note] A temporary password is generated for root@localhost: jKYS32n=?Z2&
+zNs-r+?Yq5PC
+su - mysql
+/usr1/mysql/5713/bin/mysql -u root -p
+
+   ALTER USER 'root'@'localhost' IDENTIFIED BY 'oracle';
+   flush privileges;
+   select user, host, HEX(authentication_string) as pwd from mysql.user;
+exit
+
+
+
+vi ~/.bash_profile
+=============================================================
+# .bash_profile
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+fi
+# User specific environment and startup programs
+PATH=$PATH:$HOME/bin
+export PATH
+
+
+export PS1=`hostname`:'$PWD> '
+export LD_LIBRARY_PATH=/usr/lib:/usr/local/lib
+export PATH=$PATH:$HOME/bin
+export PATH=$PATH:/bin:/usr/bin/java/bin:/bin:/usr/bin:/usr/sbin:/etc:/usr/etc
+export PATH=$PATH:/usr1/mysql/5713/bin
+export TEMPDIR=/tmp
+export EDITOR=vi
+alias ll="ls -al --color=auto"
+alias zz="cd /usr1/mysql/dba"
+alias qq="mysql --login-path=dbmon"
+=============================================================
+
+source ~/.bash_profile
+
+
+
+ps -ef | grep mysqld
+service mysqld restart
+ps -ef | grep mysqld
+
+
+-- =================================================================================================
+-- DB 계정 생성
+-- =================================================================================================
+mysql -u root --password=oracle
+   select version();
+   select user, host, HEX(authentication_string) from mysql.user order by user, host;
+   GRANT SELECT, UPDATE, INSERT, DELETE, EXECUTE ON *.*           TO scott@'192.168.86.%' IDENTIFIED BY 'oracle';
+   GRANT SELECT, EXECUTE                         ON `test%`.*     TO tiger@'%'            IDENTIFIED BY 'oracle';
+   GRANT REPLICATION SLAVE                       ON *.*           TO 'zzreplica'@'%'      IDENTIFIED BY 'oracle';
+   FLUSH PRIVILEGES;
+   select user, host, HEX(authentication_string) from mysql.user order by user, host;
+   show databases;
+   create database test;
+   show databases;
+   exit
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! On *.* : 어느 db인지 지정 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+
+-- =================================================================================================
+-- mysql_config_editor 설정
+-- =================================================================================================
+mysql_config_editor print --all
+mysql_config_editor remove --login-path=dbmon
+mysql_config_editor print --all
+
+mysql_config_editor set --login-path=dbmon     --host=localhost   --user=root        --password --socket=/tmp/mysql.sock --port=3306
+
+mysql --login-path=dbmon     -e "SELECT NOW()";
+
+
+===================================================
+nmon Install : 모니터링 툴 
+===================================================
+sudo su -
+mkdir -p /usr1/program
+cd /usr1/program
+wget http://sourceforge.net/projects/nmon/files/nmon_linux_14i.tar.gz
+tar zxvfp nmon_linux_14i.tar.gz
+ls -l /usr/bin/nmon
+chmod +x nmon*
+ls -l
+mv nmon_x86_64_centos6 /usr/bin/nmon
+ls -l /usr/bin/nmon
+nmon
+rm -rf nmon*
+
+===================================================
+모니터링결과 파일로 남기기
+===================================================
+mkdir -p /usr1/mysql/dba/log/nmon
+chown -R  433-dba:mysql /usr1
+
+nmon -f -s 60 -c 1440
+nmon -f -s 60 -c 1440 -m /usr1/mysql/dba/log/nmon
+
+===================================================
+crontab 등록
+===================================================
+crontab -e
+#################################################################
+# Monitoring
+#################################################################
+00 10 * * * /usr/bin/nmon -f -s 60 -c 1440 -m /usr1/mysql/dba/log/nmon
+
+ls -l /usr1/tool/nmon/log
+ 
+
+dstat -c --top-cpu -d --top-io --top-bio --top-latency
+
+The -cdngy paramater are represent :
+c : cpu stats (total cpu usage)
+d : disk stats (disk/total)
+n : network stats (net/total)
+g : page stats (paging)
+y : system stats (system)
+[출처] MySQL 5.7.13 GA 설치 (MySQL Power Group) |작성자 준경대디
+

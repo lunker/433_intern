@@ -1,0 +1,82 @@
+Websocket
+
+
+
+[HTTP vs Websocket]
+
+기존의 HTTP : 
+ - client-server간 접속을 유지하지 않는다.
+ - 한번에 한 방향으로만 통신이 가능한 half-duplex
+ - 지나치게 많은 헤더 데이터들. 
+ - 한 번의 요청을 처리하고 응답을 보낸 후, 연결을 끊는다.
+ - 매 요청마다 연결을 맺고 끊어야하고, 매 요청마다 헤더가 포함된다. 
+ 
+Websocket :
+ - activeX를 사용하지 않고도, tcp/ip 소켓 통신을 구현할 수 있다.
+ - UTF8의 메시지 스트림 사용
+ - http를 기반으로 하면서, http의 문제점을 해결하려고 함.
+ - 
+
+
+ 
+[Websocket Protocol]
+ - http를 기반으로 하지만, http와는 다르다.
+ - 초기 websocket 연결을 맺는 과정에서 http를 사용한다. 
+ - 3 way handshake가 끝나면, http를 websocket protocol로 바꾼다. "protocol switching"
+ - 이후부터는 http가 아닌, ws, wss protocol이 진행된다.
+ - ws: 일반적인 웹소켓 
+ - wss: 데이터 보안을 위해 SSL을 적용한 프로토콜 
+ 
+ 
+[protocol switching]
+1) send http request to server
+ - HTTP GET으로 보낸다.
+ - HTTp Header에는 'Connection : upgrade'가 들어있다. : 
+  => server에게 application layer protocol을 http-> websocket으로 바꾸라고 요청한다.
+ 
+ 
+2) Send http response to client
+ - http 101 switching protocols response를 전송한다.
+ - client가 response를 받으면, 더이상 http를 사용하지 않는다.
+ - 
+ 
+3) 
+
+[websocket readystate]
+ - connecting, open, closing, closed
+ - connecting : 처음에 websocket이 만들어 졌을 때 
+ - open : websocket의 연결이 설정됐을때 
+ - closed : 연결 설정 실패시. 
+ 
+ 
+
+[Message]
+ - 1개의 message는 여러개의 data frame들로 구성된다. 
+ - frame들은 'frame length', 'message type', 'flag'를 가진다.
+ - frame length : 길이 
+ - message type : binary or text
+ - flag : 해당 프레임이 전송하고자 하는 메세지의 마지막임을 표시. 
+ 
+[Sending messages]
+ - utf8 text, arraybuffers, blobs로 전송 
+
+[Message Events]
+ - 메세지를 읽기 위해선, message event를 등록해야 한다. 
+ - eventHandler가 messageEvent를 받는다.
+ - message는 text or binary로 읽혀진다.
+ - binary : blob or arraybuffer로 반환된다.
+ 
+ 
+[Closing websocket connection] 
+ - client, server 아무나 close를 시작할 수 있다.
+ - 'close frame'을 전송한다.
+ - close frame을 전송한 측에서는, 전송 이후에 data를 전송하면 안된다.
+ - 'close frame'을 받은 측에서는, 마찬가지로 응답으로 'close frame'을 전송한다. 혹 응답 전에 필요한 데이터들을 전송할 수 있다. 
+ 
+ 
+
+
+[출처 및 참고]
+http://www.joinc.co.kr/w/man/12/websocket
+https://msdn.microsoft.com/ko-kr/hh969243.aspx
+

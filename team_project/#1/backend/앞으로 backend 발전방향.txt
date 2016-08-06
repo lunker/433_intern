@@ -1,0 +1,21 @@
+- IOCP
+
+- TOKEN
+
+- 비밀번호 저장시 암호화 
+
+- message queue 
+
+- redis connect 시 아이디 및 비밀번호 관리 .
+
+
+- redis key : 상수로 통일 시켜서 관리 
+
+
+- db에 fe name, ip, port 저장 
+
+- 통신 중간에 fe서버가 다운됐을 경우, 어떤 일이 일어나며, 어떻게 예외 처리를 할 것인지. 
+
+- 예외 처리시 로그아웃 처리도 ㅠ ㅠ ㅠ ㅠ
+
+- redis, mysql : singleton으로 

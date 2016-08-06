@@ -1,0 +1,16 @@
+
+
+로드밸런서 
+
+
+
+
+
+[출처 및 참고]
+
+haproxy, ngingx 비교 : https://www.quora.com/Which-software-load-balancer-is-better-HAProxy-or-nginx
+
+haproxy : http://d2.naver.com/helloworld/284659
+
+
+
